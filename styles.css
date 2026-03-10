@@ -1,0 +1,417 @@
+/* ===== CSS Variables & Design System ===== */
+:root {
+    /* Color Palette */
+    --bg-dark: #121212;
+    --bg-accent: #1e1e1e;
+    --text-primary: #ffffff;
+    --text-secondary: #a0a0a0;
+    --accent-gold: #e8b648;
+    --accent-gold-hover: #f5d799;
+
+    /* Board Colors (Chess.com Green style) */
+    --light-square: #ebecd0;
+    --dark-square: #779556;
+    --highlight-selected: rgba(255, 255, 51, 0.5);
+    --highlight-last-move: rgba(246, 246, 126, 0.5);
+    --highlight-legal: rgba(0, 0, 0, 0.1);
+
+    /* Typography */
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Glassmorphism */
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-blur: blur(12px);
+
+    /* Spacing */
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --shadow-premium: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== Reset & Base Styles ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-body);
+    background-color: var(--bg-dark);
+    background-image: radial-gradient(circle at 50% 50%, #1e1e1e 0%, #121212 100%);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* ===== Header ===== */
+.game-header,
+.game-footer {
+    text-align: center;
+}
+
+.game-header h1 {
+    font-family: var(--font-heading);
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(135deg, #fff 0%, #a0a0a0 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.game-header .subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* ===== Layout ===== */
+.game-layout {
+    display: flex;
+    gap: 3rem;
+    align-items: flex-start;
+    justify-content: center;
+}
+
+/* ===== Sidebar (Glassmorphism) ===== */
+.game-info {
+    flex: 0 0 340px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    box-shadow: var(--shadow-premium);
+}
+
+.info-section h3 {
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    letter-spacing: 1.5px;
+    margin-bottom: 0.75rem;
+}
+
+.status-display {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+}
+
+.status-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.status-item:last-child {
+    margin-bottom: 0;
+}
+
+.status-label {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+.status-value {
+    font-weight: 600;
+    color: var(--accent-gold);
+}
+
+/* ===== Board Area ===== */
+.board-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.chessboard {
+    width: min(600px, 90vw);
+    height: min(600px, 90vw);
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    position: relative;
+    user-select: none;
+    overflow: hidden;
+}
+
+.square {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.square.light {
+    background-color: var(--light-square);
+}
+
+.square.dark {
+    background-color: var(--dark-square);
+}
+
+.square.selected {
+    background-color: var(--highlight-selected) !important;
+}
+
+.square.last-move {
+    background-color: var(--highlight-last-move) !important;
+}
+
+/* Coordinates (Inside Squares) */
+.coord-label {
+    position: absolute;
+    font-size: 0.75rem;
+    font-weight: 700;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.rank-label {
+    top: 3px;
+    left: 4px;
+}
+
+.file-label {
+    bottom: 2px;
+    right: 4px;
+}
+
+.square.light .coord-label {
+    color: var(--dark-square);
+}
+
+.square.dark .coord-label {
+    color: var(--light-square);
+}
+
+/* Pieces */
+.piece {
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.piece img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.piece-text {
+    font-size: 3rem;
+}
+
+/* Legal Move Markers */
+.square.legal-move::after {
+    content: '';
+    position: absolute;
+    width: 25%;
+    height: 25%;
+    background-color: var(--highlight-legal);
+    border-radius: 50%;
+}
+
+.square.legal-capture::after {
+    content: '';
+    position: absolute;
+    width: 85%;
+    height: 85%;
+    border: 5px solid var(--highlight-legal);
+    border-radius: 50%;
+}
+
+/* ===== Buttons ===== */
+.btn {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: var(--font-heading);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-secondary {
+    background: #3c3c3c;
+    color: #fff;
+}
+
+.btn-secondary:hover {
+    background: #4a4a4a;
+    transform: translateY(-2px);
+}
+
+.btn-danger {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+.btn-danger:hover {
+    background: rgba(231, 76, 60, 0.2);
+}
+
+/* ===== Dialogs ===== */
+.dialog-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.dialog-content {
+    background: #1e1e1e;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    width: 90%;
+    max-width: 480px;
+    box-shadow: var(--shadow-premium);
+}
+
+.dialog-content h2 {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.mode-selector,
+.difficulty-selector,
+.color-selector {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    margin-bottom: 1.5rem;
+}
+
+.mode-btn,
+.difficulty-btn,
+.color-btn {
+    background: #2a2a2a;
+    border: 2px solid transparent;
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mode-btn.active,
+.difficulty-btn.active,
+.color-btn.active {
+    border-color: var(--accent-gold);
+    color: #fff;
+    background: rgba(232, 182, 72, 0.1);
+}
+
+.mode-icon {
+    font-size: 1.5rem;
+}
+
+.btn-primary {
+    background: var(--accent-gold);
+    color: #121212;
+}
+
+.btn-primary:hover {
+    background: var(--accent-gold-hover);
+}
+
+/* ===== History & Message ===== */
+.move-history {
+    max-height: 200px;
+    overflow-y: auto;
+    font-size: 0.85rem;
+}
+
+.game-message {
+    padding: 1rem 2rem;
+    border-radius: var(--radius-md);
+    font-weight: 700;
+    text-align: center;
+}
+
+.game-message.checkmate {
+    background: var(--accent-gold);
+    color: #121212;
+}
+
+/* ===== Custom Scrollbar ===== */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #444;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 1000px) {
+    .game-layout {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .game-info {
+        order: 2;
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .board-container {
+        order: 1;
+    }
+}

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Chess Application Test</h1>
+    <div id="results"></div>
+
+    <script src="chess-engine.js"></script>
+    <script src="chess-ai.js"></script>
+    <script src="chess-ui.js"></script>
+    <script>
+        const results = document.getElementById('results');
+
+        function addResult(message, isSuccess) {
+            const div = document.createElement('div');
+            div.className = `test-result ${isSuccess ? 'success' : 'error'}`;
+            div.textContent = message;
+            results.appendChild(div);
+        }
+
+        // Test 1: ChessEngine loads
+        try {
+            const engine = new ChessEngine();
+            addResult('✓ ChessEngine loaded successfully', true);
+        } catch (e) {
+            addResult('✗ ChessEngine failed: ' + e.message, false);
+        }
+
+        // Test 2: ChessAI loads
+        try {
+            const ai = new ChessAI('medium');
+            addResult('✓ ChessAI loaded successfully', true);
+        } catch (e) {
+            addResult('✗ ChessAI failed: ' + e.message, false);
+        }
+
+        // Test 3: ChessUI loads (without DOM elements)
+        try {
+            // Create a dummy board element
+            const dummyBoard = document.createElement('div');
+            dummyBoard.id = 'chessboard';
+            document.body.appendChild(dummyBoard);
+
+            const engine = new ChessEngine();
+            const ui = new ChessUI(engine);
+            addResult('✓ ChessUI loaded successfully', true);
+        } catch (e) {
+            addResult('✗ ChessUI failed: ' + e.message, false);
+        }
+
+        // Test 4: Engine can initialize board
+        try {
+            const engine = new ChessEngine();
+            const piece = engine.getPiece(0, 0);
+            if (piece && piece.type === 'r' && piece.color === 'black') {
+                addResult('✓ Board initialized correctly (black rook at 0,0)', true);
+            } else {
+                addResult('✗ Board initialization incorrect', false);
+            }
+        } catch (e) {
+            addResult('✗ Board initialization failed: ' + e.message, false);
+        }
+
+        // Test 5: Legal moves work
+        try {
+            const engine = new ChessEngine();
+            const moves = engine.getLegalMoves(6, 4); // White pawn at e2
+            if (moves.length > 0) {
+                addResult(`✓ Legal moves working (${moves.length} moves for white e2 pawn)`, true);
+            } else {
+                addResult('✗ No legal moves found', false);
+            }
+        } catch (e) {
+            addResult('✗ Legal moves failed: ' + e.message, false);
+        }
+
+        addResult('All tests completed! Check results above.', true);
+    </script>
+</body>
+
+</html>

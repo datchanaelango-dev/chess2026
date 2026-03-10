@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Professional open-source chess application - Quick Start">
+    <title>Chess - Quick Start</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Hide the new game dialog on load */
+        #newGameDialog {
+            display: none !important;
+        }
+
+        /* Add a quick start button */
+        .quick-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+            display: flex;
+            gap: 10px;
+        }
+
+        .quick-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        .quick-btn:hover {
+            background: #3498db;
+            color: white;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Quick Controls -->
+    <div class="quick-controls">
+        <button class="quick-btn" onclick="quickNewGame()">🆕 New Game</button>
+        <button class="quick-btn" onclick="quickVsBot()">🤖 vs Bot</button>
+    </div>
+
+    <!-- Promotion Dialog -->
+    <div id="promotionDialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog-content promotion-dialog">
+            <h2>Promote Pawn</h2>
+            <p>Choose a piece to promote your pawn:</p>
+            <div class="promotion-options">
+                <button class="promotion-btn" data-piece="q">
+                    <span class="promotion-piece">♕</span>
+                    <span class="promotion-label">Queen</span>
+                </button>
+                <button class="promotion-btn" data-piece="r">
+                    <span class="promotion-piece">♖</span>
+                    <span class="promotion-label">Rook</span>
+                </button>
+                <button class="promotion-btn" data-piece="b">
+                    <span class="promotion-piece">♗</span>
+                    <span class="promotion-label">Bishop</span>
+                </button>
+                <button class="promotion-btn" data-piece="n">
+                    <span class="promotion-piece">♘</span>
+                    <span class="promotion-label">Knight</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Game Container -->
+    <div class="container">
+        <header class="game-header">
+            <h1>♔ Professional Chess ♚</h1>
+            <p class="subtitle">Click pieces to play - All FIDE Rules</p>
+        </header>
+
+        <div class="game-layout">
+            <!-- Game Info Panel -->
+            <aside class="game-info">
+                <div class="info-section">
+                    <h3>Game Status</h3>
+                    <div id="gameStatus" class="status-display">
+                        <div class="status-item">
+                            <span class="status-label">Turn:</span>
+                            <span id="currentTurn" class="status-value">White</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Mode:</span>
+                            <span id="gameMode" class="status-value">Player vs Player</span>
+                        </div>
+                        <div id="checkStatus" class="check-indicator" style="display: none;">
+                            ⚠️ Check!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Captured Pieces</h3>
+                    <div id="capturedPieces" class="captured-pieces">
+                        <div class="captured-group">
+                            <span class="captured-label">White:</span>
+                            <div id="capturedWhite" class="captured-list"></div>
+                        </div>
+                        <div class="captured-group">
+                            <span class="captured-label">Black:</span>
+                            <div id="capturedBlack" class="captured-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Move History</h3>
+                    <div id="moveHistory" class="move-history"></div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Game Controls</h3>
+                    <div class="game-controls">
+                        <button id="resignBtn" class="btn btn-danger">Resign</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Chess Board -->
+            <main class="board-container">
+                <div id="chessboard" class="chessboard"></div>
+                <div id="gameMessage" class="game-message"></div>
+            </main>
+        </div>
+
+        <footer class="game-footer">
+            <p>Professional Chess Application | Full FIDE Rules Implementation</p>
+        </footer>
+    </div>
+
+    <script src="chess-engine.js"></script>
+    <script src="chess-ai.js"></script>
+    <script src="chess-ui.js"></script>
+    <script>
+        let engine;
+        let ui;
+        let ai;
+        let gameMode = 'pvp';
+        let botDifficulty = 'medium';
+        let playerColor = 'white';
+        let botThinking = false;
+
+        // Initialize immediately
+        function init() {
+            engine = new ChessEngine();
+            ui = new ChessUI(engine);
+            ui.initializeBoard();
+
+            document.getElementById('resignBtn').addEventListener('click', resignGame);
+        }
+
+        // Quick new game
+        function quickNewGame() {
+            gameMode = 'pvp';
+            engine.reset();
+            ui.reset();
+            ui.initializeBoard();
+            document.getElementById('gameMode').textContent = 'Player vs Player';
+        }
+
+        // Quick vs bot
+        function quickVsBot() {
+            gameMode = 'pvb';
+            botDifficulty = 'medium';
+            playerColor = 'white';
+
+            engine.reset();
+            ui.reset();
+            ui.initializeBoard();
+
+            ai = new ChessAI(botDifficulty);
+            document.getElementById('gameMode').textContent = 'vs Medium Bot';
+        }
+
+        // Make bot move
+        async function makeBotMove() {
+            if (botThinking || engine.gameOver) return;
+
+            botThinking = true;
+            ui.disableBoard();
+            ui.showMessage('🤖 Bot is thinking...', '');
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const move = ai.getBestMove(engine);
+
+            if (move) {
+                const promotionPiece = move.piece.type === 'p' && (move.to.row === 0 || move.to.row === 7) ? 'q' : 'q';
+                const success = engine.makeMove(move.from.row, move.from.col, move.to.row, move.to.col, promotionPiece);
+
+                if (success) {
+                    ui.updateBoard();
+                    ui.checkGameEnd();
+                }
+            }
+
+            ui.clearMessage();
+            ui.enableBoard();
+            botThinking = false;
+        }
+
+        // Override makeMove
+        const originalMakeMove = ChessUI.prototype.makeMove;
+        ChessUI.prototype.makeMove = function (fromRow, fromCol, toRow, toCol, promotionPiece = 'q') {
+            const success = originalMakeMove.call(this, fromRow, fromCol, toRow, toCol, promotionPiece);
+
+            if (success && gameMode === 'pvb' && !engine.gameOver) {
+                setTimeout(() => makeBotMove(), 300);
+            }
+
+            return success;
+        };
+
+        function resignGame() {
+            if (engine.gameOver) return;
+
+            const confirmResign = confirm('Are you sure you want to resign?');
+            if (confirmResign) {
+                engine.gameOver = true;
+                const winner = engine.currentTurn === 'white' ? 'Black' : 'White';
+                ui.showMessage(`${winner} wins by resignation!`, 'checkmate');
+            }
+        }
+
+        // Start immediately
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+
+</html>

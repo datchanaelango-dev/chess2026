@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Professional open-source chess application with AI opponents, implementing all FIDE rules including castling, en passant, and pawn promotion.">
+    <meta name="keywords" content="chess, chess game, online chess, chess AI, chess bot, FIDE rules">
+    <meta name="author" content="Open Source Chess Project">
+    <title>Professional Chess - Play Against AI or Friends</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- New Game Dialog -->
+    <div id="newGameDialog" class="dialog-overlay">
+        <div class="dialog-content">
+            <h2>New Chess Game</h2>
+
+            <div class="dialog-section">
+                <h3>Game Mode</h3>
+                <div class="mode-selector">
+                    <button class="mode-btn active" data-mode="pvp">
+                        <span class="mode-icon">👥</span>
+                        <span class="mode-label">Player vs Player</span>
+                    </button>
+                    <button class="mode-btn" data-mode="pvb">
+                        <span class="mode-icon">🤖</span>
+                        <span class="mode-label">Player vs Bot</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="botOptions" class="dialog-section" style="display: none;">
+                <h3>Bot Difficulty</h3>
+                <div class="difficulty-selector">
+                    <button class="difficulty-btn active" data-difficulty="easy">
+                        <span class="difficulty-label">Easy</span>
+                        <span class="difficulty-desc">Random moves</span>
+                    </button>
+                    <button class="difficulty-btn" data-difficulty="medium">
+                        <span class="difficulty-label">Medium</span>
+                        <span class="difficulty-desc">Minimax depth 2</span>
+                    </button>
+                    <button class="difficulty-btn" data-difficulty="hard">
+                        <span class="difficulty-label">Hard</span>
+                        <span class="difficulty-desc">Alpha-beta depth 4</span>
+                    </button>
+                </div>
+
+                <h3>Your Color</h3>
+                <div class="color-selector">
+                    <button class="color-btn active" data-color="white">
+                        <span class="color-icon">♔</span>
+                        <span class="color-label">White</span>
+                    </button>
+                    <button class="color-btn" data-color="black">
+                        <span class="color-icon">♚</span>
+                        <span class="color-label">Black</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="dialog-actions">
+                <button id="startGameBtn" class="btn btn-primary">Start Game</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Promotion Dialog -->
+    <div id="promotionDialog" class="dialog-overlay" style="display: none;">
+        <div class="dialog-content promotion-dialog">
+            <h2>Promote Pawn</h2>
+            <p>Choose a piece to promote your pawn:</p>
+            <div class="promotion-options">
+                <button class="promotion-btn" data-piece="q">
+                    <span class="promotion-piece">♕</span>
+                    <span class="promotion-label">Queen</span>
+                </button>
+                <button class="promotion-btn" data-piece="r">
+                    <span class="promotion-piece">♖</span>
+                    <span class="promotion-label">Rook</span>
+                </button>
+                <button class="promotion-btn" data-piece="b">
+                    <span class="promotion-piece">♗</span>
+                    <span class="promotion-label">Bishop</span>
+                </button>
+                <button class="promotion-btn" data-piece="n">
+                    <span class="promotion-piece">♘</span>
+                    <span class="promotion-label">Knight</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Game Container -->
+    <div class="container">
+        <header class="game-header">
+            <h1>♔ Professional Chess ♚</h1>
+            <p class="subtitle">Full FIDE Rules Implementation</p>
+        </header>
+
+        <div class="game-layout">
+            <!-- Game Info Panel -->
+            <aside class="game-info">
+                <div class="info-section">
+                    <h3>Game Status</h3>
+                    <div id="gameStatus" class="status-display">
+                        <div class="status-item">
+                            <span class="status-label">Turn:</span>
+                            <span id="currentTurn" class="status-value">White</span>
+                        </div>
+                        <div class="status-item">
+                            <span class="status-label">Mode:</span>
+                            <span id="gameMode" class="status-value">-</span>
+                        </div>
+                        <div id="checkStatus" class="check-indicator" style="display: none;">
+                            ⚠️ Check!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Captured Pieces</h3>
+                    <div id="capturedPieces" class="captured-pieces">
+                        <div class="captured-group">
+                            <span class="captured-label">White:</span>
+                            <div id="capturedWhite" class="captured-list"></div>
+                        </div>
+                        <div class="captured-group">
+                            <span class="captured-label">Black:</span>
+                            <div id="capturedBlack" class="captured-list"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Move History</h3>
+                    <div id="moveHistory" class="move-history"></div>
+                </div>
+
+                <div class="info-section">
+                    <h3>Game Controls</h3>
+                    <div class="game-controls">
+                        <button id="newGameBtn" class="btn btn-secondary">New Game</button>
+                        <button id="resignBtn" class="btn btn-danger">Resign</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Chess Board -->
+            <main class="board-container">
+                <div id="chessboard" class="chessboard"></div>
+                <div id="gameMessage" class="game-message"></div>
+            </main>
+        </div>
+
+        <footer class="game-footer">
+            <p>Open Source Chess Application | <a href="https://github.com" target="_blank">View on GitHub</a></p>
+            <p>Implements all FIDE rules including castling, en passant, promotion, check, checkmate, and stalemate</p>
+        </footer>
+    </div>
+
+    <script src="chess-engine.js"></script>
+    <script src="chess-ai.js"></script>
+    <script src="chess-ui.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
